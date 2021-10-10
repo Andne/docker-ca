@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  rootca:
+    build: .
+    entrypoint: /opt/entrypoint.sh
+    volumes:
+      - rootca:/var/lib/rootca
+
+volumes:
+  rootca:
+    external: false
