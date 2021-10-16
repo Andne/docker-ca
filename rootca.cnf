@@ -28,14 +28,14 @@ countryName                 = match
 stateOrProvinceName         = optional
 organizationName            = match
 organizationalUnitName      = optional
-commonName                  = required
+commonName                  = supplied
 
 [policy_loose]
 countryName                 = match
 stateOrProvinceName         = optional
 organizationName            = optional
 organizationalUnitName      = optional
-commonName                  = required
+commonName                  = supplied
 
 [req]
 # Options for the `req` tool (`man req`).
@@ -60,7 +60,7 @@ organizationalUnitName      = Organizational Unit Name
 commonName                  = Common Name
 
 [req_ext]
-subjectAltName = email:certs@tridigee.com
+subjectAltName = $ENV::subjectAltName
 
 [v3_ca]
 # Extensions for a typical CA (`man x509v3_config`).
@@ -70,3 +70,23 @@ basicConstraints = critical, CA:true
 # keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 keyUsage = critical, cRLSign, keyCertSign
 subjectAltName = email:certs@trigidee.com
+
+[usr_cert]
+# Extensions for client certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "OpenSSL Generated Client Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, emailProtection
+
+[server_cert]
+# Extensions for server certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = server
+nsComment = "OpenSSL Generated Server Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth

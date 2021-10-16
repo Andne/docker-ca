@@ -6,6 +6,7 @@ services:
     entrypoint: /opt/entrypoint.sh
     volumes:
       - rootca:/var/lib/rootca
+      - ./certs:/var/lib/rootca/output
 
 volumes:
   rootca:
