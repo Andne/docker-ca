@@ -42,8 +42,8 @@ function main()
         /var/lib/rootca/output/${fqdn}/${fqdn}.pem
     openssl x509 -in /var/lib/rootca/output/${fqdn}/${fqdn}.pem -text
 
-    # Make sure the key can be read from outside the container
-    chmod -R g+r /var/lib/rootca/output/${fqdn}
+    # Make sure the key can be read/deleted from outside the container
+    chmod -R g+rw /var/lib/rootca/output/${fqdn}
 }
 
 main "$@"
