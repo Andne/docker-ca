@@ -59,6 +59,10 @@ fi
 
 # Make sure the certificate can be downloaded as wanted
 cp /var/lib/rootca/local/rootCA.pem /var/lib/rootca/output/rootCA.pem
+openssl pkcs12 -export -certpbe NONE -nokeys -passout pass: \
+    -in /var/lib/rootca/local/rootCA.pem \
+    -out /var/lib/rootca/output/rootCA.p12
+chmod 444 /var/lib/rootca/output/rootCA.*
 
 openssl x509 -in /var/lib/rootca/local/rootCA.pem -text
 
