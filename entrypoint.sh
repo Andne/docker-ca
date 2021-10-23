@@ -10,13 +10,18 @@ touch /var/lib/rootca/index.txt
 
 new_files_generated=no
 
-# Generate a new root key if one hasn't been generated already
+# Either try to import or generate a new root key if one hasn't been generated already
 if [ ! -e /var/lib/rootca/local/rootCA.key ] ; then
-    echo "No root key found, generating new root key"
-    openssl genpkey -algorithm ED25519 -outform PEM -out /var/lib/rootca/local/rootCA.key
-    chmod 400 /var/lib/rootca/local/rootCA.key
+    if [ -e /var/lib/rootca/output/Andne-Root-Cert.tar ] ; then
+        echo "Restoring root cert from bundle"
+        tar xf /var/lib/rootca/output/Andne-Root-Cert.tar -C /var/lib/rootca/local
+    else
+        echo "No root key found, generating new root key"
+        openssl genpkey -algorithm ED25519 -outform PEM -out /var/lib/rootca/local/rootCA.key
+        chmod 400 /var/lib/rootca/local/rootCA.key
 
-    new_files_generated=yes
+        new_files_generated=yes
+    fi
 fi
 
 # Generate a new root certificate if one hasn't been generated already
@@ -41,9 +46,7 @@ if [ "${new_files_generated}" == "yes" ] ; then
 fi
 
 # Make sure the certificate can be downloaded as wanted
-if [ ! -e /var/lib/rootca/output/rootCA.pem ] ; then
-    cp /var/lib/rootca/local/rootCA.pem /var/lib/rootca/output/rootCA.pem
-fi
+cp /var/lib/rootca/local/rootCA.pem /var/lib/rootca/output/rootCA.pem
 
 openssl x509 -in /var/lib/rootca/local/rootCA.pem -text
 
@@ -53,7 +56,6 @@ openssl x509 -in /var/lib/rootca/local/rootCA.pem -text
 #############################################################
 
 Shutdown() {
-    keep_running=0
     exit 0
 }
 
