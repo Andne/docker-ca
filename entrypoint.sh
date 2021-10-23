@@ -13,37 +13,48 @@ new_files_generated=no
 
 # Either try to import or generate a new root key if one hasn't been generated already
 if [ ! -e /var/lib/rootca/local/rootCA.key ] ; then
-    if [ -e /var/lib/rootca/output/Andne-Root-Cert.tar ] ; then
-        echo "Restoring root cert from bundle"
-        tar xf /var/lib/rootca/output/Andne-Root-Cert.tar -C /var/lib/rootca/local
+    if [ -e /var/lib/rootca/output/Andne-Root-Cert.p12 ] ; then
+        echo "Restoring root key from bundle"
+        openssl pkcs12 -nocerts -nodes -passin pass: \
+            -in /var/lib/rootca/output/Andne-Root-Cert.p12 \
+            -out /var/lib/rootca/local/rootCA.key
     else
         echo "No root key found, generating new root key"
         openssl genpkey -algorithm ED25519 -outform PEM -out /var/lib/rootca/local/rootCA.key
-        chmod 400 /var/lib/rootca/local/rootCA.key
 
         new_files_generated=yes
     fi
+    chmod 400 /var/lib/rootca/local/rootCA.key
 fi
 
 # Generate a new root certificate if one hasn't been generated already
 if [ ! -e /var/lib/rootca/local/rootCA.pem ] ; then
-    echo "No root certificate found, generating new root certificate"
-    (
-        export subjectAltName="email:certs@tridigee.com"
-        openssl req -x509 -config /etc/rootca.cnf -new -nodes -sha256 -days 3650 \
-            -subj "/C=US/ST=IA/O=Andne.net/CN=Andne Root CA" \
-            -key /var/lib/rootca/local/rootCA.key -out /var/lib/rootca/local/rootCA.pem
-    )
-    chmod 444 /var/lib/rootca/local/rootCA.pem
+    if [ -e /var/lib/rootca/output/Andne-Root-Cert.p12 ] ; then
+        echo "Restoring root certificate from bundle"
+        openssl pkcs12 -nokeys -nodes -passin pass: \
+            -in /var/lib/rootca/output/Andne-Root-Cert.p12 \
+            -out /var/lib/rootca/local/rootCA.pem
+    else
+        echo "No root certificate found, generating new root certificate"
+        (
+            export subjectAltName="email:certs@tridigee.com"
+            openssl req -x509 -config /etc/rootca.cnf -new -nodes -sha256 -days 3650 \
+                -subj "/C=US/ST=IA/O=Andne.net/CN=Andne Root CA" \
+                -key /var/lib/rootca/local/rootCA.key -out /var/lib/rootca/local/rootCA.pem
+        )
 
-    new_files_generated=yes
+        new_files_generated=yes
+    fi
+    chmod 444 /var/lib/rootca/local/rootCA.pem
 fi
 
 # Export an archive if any new files were created
 if [ "${new_files_generated}" == "yes" ] ; then
     echo "Exporting root certificate for archiving"
-    tar cf /var/lib/rootca/output/Andne-Root-Cert.tar -C /var/lib/rootca/local rootCA.key rootCA.pem
-    chmod 440 /var/lib/rootca/output/Andne-Root-Cert.tar
+    openssl pkcs12 -export -keypbe NONE -certpbe NONE -nomaciter -passout pass: \
+        -in /var/lib/rootca/local/rootCA.pem -inkey /var/lib/rootca/local/rootCA.key \
+        -out /var/lib/rootca/output/Andne-Root-Cert.p12
+    chmod 440 /var/lib/rootca/output/Andne-Root-Cert.p12
 fi
 
 # Make sure the certificate can be downloaded as wanted
