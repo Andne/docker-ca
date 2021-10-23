@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-LABEL maintainer="andy@andne.net" updated="2021-10-12"
+LABEL maintainer="andy@andne.net" updated="2021-10-23"
 
 RUN apk add --no-cache openssl
 

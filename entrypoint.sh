@@ -5,6 +5,7 @@ mkdir -p /var/lib/rootca/local
 chmod 700 /var/lib/rootca/local
 mkdir -p /var/lib/rootca/input
 mkdir -p /var/lib/rootca/output
+chmod g+s /var/lib/rootca/output
 
 touch /var/lib/rootca/index.txt
 

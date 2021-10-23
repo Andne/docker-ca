@@ -1,12 +1,18 @@
-version: "2"
+version: "2.3"
 
 services:
   rootca:
-    build: .
-    entrypoint: /opt/entrypoint.sh
+    build:
+      context: .
+      network: "host"
+    network_mode: "none"
     volumes:
-      - rootca:/var/lib/rootca
-      - ./certs:/var/lib/rootca/output
+      - type: volume
+        source: rootca
+        target: /var/lib/rootca
+      - type: bind
+        source: ./certs
+        target: /var/lib/rootca/output
 
 volumes:
   rootca:
