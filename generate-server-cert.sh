@@ -19,12 +19,9 @@ function main()
 
     mkdir -m 2755 -p /var/lib/rootca/output/${fqdn}
 
-    # Generate a key and make it visible
+    # Generate a key and signing request
     openssl genpkey -algorithm ED25519 -outform PEM \
         -out /var/lib/rootca/output/${fqdn}/${fqdn}.key
-    chmod g+r /var/lib/rootca/output/${fqdn}/${fqdn}.key
-
-    # Create a signing request for the new key
     openssl req -config /etc/rootca.cnf -new -subj "${DN}" \
         -key /var/lib/rootca/output/${fqdn}/${fqdn}.key \
         -out /var/lib/rootca/input/${fqdn}.csr
